@@ -3,7 +3,7 @@ const cors = require('cors');
 const port = process.env.PORT || 5000;
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 
@@ -20,15 +20,46 @@ async function run() {
     try {
         await client.connect();
         const partCollection = client.db('techmate_technologies').collection('parts');
+        const orderCollection = client.db('techmate_technologies').collection('orders');
 
         //parts apis
+        //GET
         app.get('/parts', async (req, res) => {
             const query = {};
             const cursor = partCollection.find(query);
             const parts = await cursor.toArray();
             res.send(parts);
         });
+        //GET ONE ITEM
+        app.get('/parts/purchase/:partId', async (req, res) => {
+            const id = req.params.partId;
+            const query = { _id: ObjectId(id) };
+            const part = await partCollection.findOne(query);
+            res.send(part);
+        });
+        //POST ADD ONE ORDER
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            console.log(result);
+            res.send(result);
+        });
+        //PUT UPDATE ONE ITEM
+        app.put('/parts/purchase/:partId', async (req, res) => {
+            const id = req.params.partId;
+            const updatedPart = req.body;
+            console.log(updatedPart);
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    available_quantity: updatedPart.available_quantity,
+                }
+            }
+            const result = await partCollection.updateOne(filter, updatedDoc, options);
 
+            res.send(result);
+        })
     }
     finally {
 
