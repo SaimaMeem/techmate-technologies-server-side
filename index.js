@@ -60,6 +60,24 @@ async function run() {
 
             res.send(result);
         })
+
+        //GET ORDERS
+        app.get('/orders', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = orderCollection.find(query);
+            const orders = await cursor.toArray();
+            res.send(orders);
+        });
+
+        //DELETE ORDERS
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            // console.log(id);
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.send(result);
+        });
     }
     finally {
 
