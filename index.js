@@ -3,6 +3,7 @@ const cors = require('cors');
 const port = process.env.PORT || 5000;
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
@@ -21,6 +22,7 @@ async function run() {
         await client.connect();
         const partCollection = client.db('techmate_technologies').collection('parts');
         const orderCollection = client.db('techmate_technologies').collection('orders');
+        const paymentCollection = client.db('techmate_technologies').collection('payments');
 
         //parts apis
         //GET
@@ -30,6 +32,7 @@ async function run() {
             const parts = await cursor.toArray();
             res.send(parts);
         });
+
         //GET ONE ITEM
         app.get('/parts/purchase/:partId', async (req, res) => {
             const id = req.params.partId;
@@ -77,6 +80,47 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.deleteOne(query);
             res.send(result);
+        });
+        //GET ONE ORDER
+        app.get('/orders/:orderId', async (req, res) => {
+            const id = req.params.orderId;
+            const query = { _id: ObjectId(id) };
+            const order = await orderCollection.findOne(query);
+            res.send(order);
+        });
+        //POST PAYMENT
+        app.post('/create-payment-intent', async (req, res) => {
+            const order = req.body;
+            const price = order?.total_price;
+            console.log(price);
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+            res.send({
+                clientSecret: paymentIntent.client_secret
+            });
+        })
+        //PATCH ORDER
+        app.patch('/orders/:orderId', async (req, res) => {
+            const id = req.params.orderId;
+            const payment = req.body;
+            console.log('patch', payment);
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+                }
+            }
+            const result = await paymentCollection.insertOne(payment);
+            const updatedOrder = await orderCollection.updateOne(filter, updatedDoc);
+            // sendPaymentConfirmationEmail(payment);
+            res.send({ success: true, updatedOrder });
+            // res.send(updatedOrder);
+
         });
     }
     finally {
