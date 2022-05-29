@@ -150,7 +150,6 @@ async function run() {
         app.put('/users', async (req, res) => {
             const email = req.query.email;
             console.log(email);
-            // const query = { email: email };
             const profile = req.body;
             console.log(profile);
             const filter = { email: email };
