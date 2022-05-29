@@ -84,15 +84,15 @@ async function run() {
         app.get('/orders', verifyJWT, async (req, res) => {
             const email = req.query.email;
             const decodedEmail = req.decoded.email;
-          if(email === decodedEmail){
-            const query = { email: email };
-            const cursor = orderCollection.find(query);
-            const orders = await cursor.toArray();
-            res.send(orders);
-          }
-          else {
-            res.status(403).send({ message: 'Forbidden Access' })
-        }
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = orderCollection.find(query);
+                const orders = await cursor.toArray();
+                res.send(orders);
+            }
+            else {
+                res.status(403).send({ message: 'Forbidden Access' })
+            }
         });
 
         //DELETE ORDERS
@@ -192,8 +192,8 @@ async function run() {
             const users = await userCollection.findOne(query);
             res.send(users);
         });
-        //GET USERS
-        app.get('/users', async (req, res) => {
+        //GET ALL USERS
+        app.get('/user', verifyJWT, async (req, res) => {
             const query = {};
             const cursor = userCollection.find(query).sort([['_id', -1]]);
             const users = await cursor.toArray();
@@ -212,6 +212,24 @@ async function run() {
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
             res.send({ result, token });
         });
+
+        // PUT ADMIN
+        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+        // GET ADMIN
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        })
 
     }
     finally {
