@@ -240,6 +240,14 @@ async function run() {
             res.send(result);
         });
 
+          //GET
+          app.get('/allorders', async (req, res) => {
+            const query = {};
+            const cursor = orderCollection.find(query).sort([['paid', 1]]);
+            const orders = await cursor.toArray();
+            res.send(orders);
+        });
+
     }
     finally {
 
