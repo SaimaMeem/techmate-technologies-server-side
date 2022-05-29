@@ -44,7 +44,7 @@ async function run() {
         //GET
         app.get('/parts', async (req, res) => {
             const query = {};
-            const cursor = partCollection.find(query);
+            const cursor = partCollection.find(query).sort([['_id', -1]]);
             const parts = await cursor.toArray();
             res.send(parts);
         });
@@ -53,7 +53,7 @@ async function run() {
         app.get('/parts/purchase/:partId', async (req, res) => {
             const id = req.params.partId;
             const query = { _id: ObjectId(id) };
-            const part = await partCollection.findOne(query).sort([['_id', -1]]);
+            const part = await partCollection.findOne(query);
             res.send(part);
         });
         //POST ADD ONE ORDER
@@ -86,7 +86,7 @@ async function run() {
             const decodedEmail = req.decoded.email;
             if (email === decodedEmail) {
                 const query = { email: email };
-                const cursor = orderCollection.find(query);
+                const cursor = orderCollection.find(query).sort([['_id', -1]]);
                 const orders = await cursor.toArray();
                 res.send(orders);
             }
@@ -230,6 +230,15 @@ async function run() {
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin });
         })
+
+
+         //POST PART
+         app.post('/parts', async (req, res) => {
+            const part = req.body;
+            const result = await partCollection.insertOne(part);
+            console.log(result);
+            res.send(result);
+        });
 
     }
     finally {
