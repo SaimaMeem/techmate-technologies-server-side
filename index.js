@@ -23,6 +23,7 @@ async function run() {
         const partCollection = client.db('techmate_technologies').collection('parts');
         const orderCollection = client.db('techmate_technologies').collection('orders');
         const paymentCollection = client.db('techmate_technologies').collection('payments');
+        const reviewCollection = client.db('techmate_technologies').collection('reviews');
 
         //parts apis
         //GET
@@ -121,6 +122,21 @@ async function run() {
             res.send({ success: true, updatedOrder });
             // res.send(updatedOrder);
 
+        });
+
+        //POST REVIEW
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            console.log(result);
+            res.send(result);
+        });
+        //GET REVIEWS
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query).sort( [['_id', -1]]);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
         });
     }
     finally {
