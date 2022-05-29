@@ -24,6 +24,7 @@ async function run() {
         const orderCollection = client.db('techmate_technologies').collection('orders');
         const paymentCollection = client.db('techmate_technologies').collection('payments');
         const reviewCollection = client.db('techmate_technologies').collection('reviews');
+        const userCollection = client.db('techmate_technologies').collection('users');
 
         //parts apis
         //GET
@@ -134,10 +135,52 @@ async function run() {
         //GET REVIEWS
         app.get('/reviews', async (req, res) => {
             const query = {};
-            const cursor = reviewCollection.find(query).sort( [['_id', -1]]);
+            const cursor = reviewCollection.find(query).sort([['_id', -1]]);
             const reviews = await cursor.toArray();
             res.send(reviews);
         });
+        //POST USERS
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user);
+            console.log(result);
+            res.send(result);
+        });
+
+        app.put('/users', async (req, res) => {
+            const email = req.query.email;
+            console.log(email);
+            // const query = { email: email };
+            const profile = req.body;
+            console.log(profile);
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    address: profile.address,
+                    contact: profile.contact,
+                }
+            }
+            console.log(updatedDoc);
+            const result = await userCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
+        //GET ONE USER
+        app.get('/users', async (req, res) => {
+            const email = req.query.email;
+            // console.log(email);
+            const query = { email: email };
+            const users = await userCollection.findOne(query);
+            res.send(users);
+        });
+        //GET USERS
+        // app.get('/users', async (req, res) => {
+        //     const query = {};
+        //     const cursor = userCollection.find(query).sort([['_id', -1]]);
+        //     const users = await cursor.toArray();
+        //     res.send(users);
+        // });
+
     }
     finally {
 
