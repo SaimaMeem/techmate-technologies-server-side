@@ -247,8 +247,16 @@ async function run() {
             const orders = await cursor.toArray();
             res.send(orders);
         });
-
+        //DELETE PARTS
+        app.delete('/parts/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: ObjectId(id) };
+            const result = await partCollection.deleteOne(query);
+            res.send(result);
+        });
     }
+    
     finally {
 
     }
