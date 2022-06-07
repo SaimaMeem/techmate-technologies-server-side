@@ -8,7 +8,7 @@
 * In the home page, there are different types of sections and they are Benefits, Computer Parts, Our Growth, FAQs and reviews section.
 * This website can be logged in by two types of users and they are: User and Admin.
 * To execute any operation related to computer parts, a user must login.
-* Users can login using Email/Password, Google and Facebook.
+* JWT implementation for register/login system using Email/Password, Google and Facebook for different users.
 * By clicking the respective purchase button from homepage, user can place order for that part.
 * This are different dashboards based on user role. User can see his orders and delete them, pay for them to complete the order, post a review and check his profile from the dashboard.
 * Similarly, Admin can see all the orders and parts, also have the permission to delete them, add a new part and check his profile from the dashboard. He/she can also make another user admin.
