@@ -60,14 +60,12 @@ async function run() {
         app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
-            console.log(result);
             res.send(result);
         });
         //PUT UPDATE ONE ITEM
         app.put('/parts/purchase/:partId', async (req, res) => {
             const id = req.params.partId;
             const updatedPart = req.body;
-            console.log(updatedPart);
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
@@ -98,7 +96,6 @@ async function run() {
         //DELETE ORDERS
         app.delete('/orders/:id', async (req, res) => {
             const id = req.params.id;
-            // console.log(id);
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.deleteOne(query);
             res.send(result);
@@ -114,7 +111,6 @@ async function run() {
         app.post('/create-payment-intent', async (req, res) => {
             const order = req.body;
             const price = order?.total_price;
-            console.log(price);
             const amount = price * 100;
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount,
@@ -129,7 +125,6 @@ async function run() {
         app.patch('/orders/:orderId', async (req, res) => {
             const id = req.params.orderId;
             const payment = req.body;
-            console.log('patch', payment);
             const filter = { _id: ObjectId(id) };
             const updatedDoc = {
                 $set: {
@@ -149,7 +144,6 @@ async function run() {
         app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
-            console.log(result);
             res.send(result);
         });
         //GET REVIEWS
@@ -163,31 +157,12 @@ async function run() {
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await userCollection.insertOne(user);
-            console.log(result);
             res.send(result);
         });
 
-        // app.put('/users', async (req, res) => {
-        //     const email = req.query.email;
-        //     console.log(email);
-        //     const profile = req.body;
-        //     console.log(profile);
-        //     const filter = { email: email };
-        //     const options = { upsert: true };
-        //     const updatedDoc = {
-        //         $set: {
-        //             address: profile.address,
-        //             contact: profile.contact,
-        //         }
-        //     }
-        //     console.log(updatedDoc);
-        //     const result = await userCollection.updateOne(filter, updatedDoc, options);
-        //     res.send(result);
-        // });
         //GET ONE USER
         app.get('/users', async (req, res) => {
             const email = req.query.email;
-            // console.log(email);
             const query = { email: email };
             const users = await userCollection.findOne(query);
             res.send(users);
@@ -232,16 +207,15 @@ async function run() {
         })
 
 
-         //POST PART
-         app.post('/parts', async (req, res) => {
+        //POST PART
+        app.post('/parts', async (req, res) => {
             const part = req.body;
             const result = await partCollection.insertOne(part);
-            console.log(result);
             res.send(result);
         });
 
-          //GET
-          app.get('/allorders', async (req, res) => {
+        //GET
+        app.get('/allorders', async (req, res) => {
             const query = {};
             const cursor = orderCollection.find(query).sort([['paid', 1]]);
             const orders = await cursor.toArray();
@@ -250,13 +224,12 @@ async function run() {
         //DELETE PARTS
         app.delete('/parts/:id', async (req, res) => {
             const id = req.params.id;
-            console.log(id);
             const query = { _id: ObjectId(id) };
             const result = await partCollection.deleteOne(query);
             res.send(result);
         });
     }
-    
+
     finally {
 
     }
